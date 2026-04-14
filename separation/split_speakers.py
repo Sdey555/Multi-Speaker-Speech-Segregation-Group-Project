@@ -1,6 +1,9 @@
 from pydub import AudioSegment
 import os
 
+BOUNDARY_PADDING_MS = 120
+
+
 def split_into_speakers(audio_file, speakers, output_folder):
 
     audio = AudioSegment.from_wav(audio_file)
@@ -13,8 +16,11 @@ def split_into_speakers(audio_file, speakers, output_folder):
 
         for start, end in speakers[speaker]:
 
-            start_ms = int(start * 1000)
-            end_ms = int(end * 1000)
+            start_ms = max(0, int(start * 1000) - BOUNDARY_PADDING_MS)
+            end_ms = min(duration, int(end * 1000) + BOUNDARY_PADDING_MS)
+
+            if end_ms <= start_ms:
+                continue
 
             segment = audio[start_ms:end_ms]
 
