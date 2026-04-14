@@ -1,0 +1,9 @@
+pyannote.audio
+torch
+torchaudio
+librosa
+pydub
+noisereduce
+numpy
+matplotlib
+soundfile
