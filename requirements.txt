@@ -1,9 +1,12 @@
-pyannote.audio
-torch
-torchaudio
-librosa
-pydub
-noisereduce
-numpy
-matplotlib
-soundfile
+# Direct dependencies for DemoSpeakerSplitter
+# Note: install FFmpeg separately on Windows for pydub/audio tooling.
+
+pyannote.audio==4.0.4
+torch==2.11.0
+torchaudio==2.11.0
+librosa==0.11.0
+pydub==0.25.1
+noisereduce==3.0.3
+numpy==2.4.4
+matplotlib==3.10.8
+soundfile==0.13.1
