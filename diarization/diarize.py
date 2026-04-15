@@ -145,7 +145,7 @@ def perform_diarization(audio_file, expected_speakers=EXPECTED_SPEAKERS):
         token=True
     )
 
-    diarization = pipeline(audio_data, num_speakers=expected_speakers)
+    diarization = pipeline(audio_data)          #Removed No of Speaker Limiter
     segments = _extract_segments(diarization)
 
     segments = _normalize_segments(segments)
