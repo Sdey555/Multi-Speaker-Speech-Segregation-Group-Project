@@ -11,7 +11,7 @@ from utils.timestamps import group_by_speaker
 
 from separation.split_speakers import split_into_speakers
 
-from utils.visualization import show_waveform
+from visualization import create_all_visualizations
 
 
 def main():
@@ -46,8 +46,8 @@ def main():
     print("Done!")
 
     print(f"Speakers detected: {len(speakers)}")
-
-    show_waveform(CLEAN_AUDIO_FILE)
+    
+    create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_FOLDER)
 
 
 if __name__ == "__main__":
