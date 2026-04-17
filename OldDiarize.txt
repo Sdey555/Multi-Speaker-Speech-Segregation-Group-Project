@@ -1,0 +1,38 @@
+from pyannote.audio import Pipeline
+import soundfile as sf
+import torch
+
+def perform_diarization(audio_file):
+
+    waveform, sample_rate = sf.read(audio_file)
+
+    waveform = torch.tensor(waveform).float()
+
+    if waveform.ndim == 1:
+        waveform = waveform.unsqueeze(0)
+    else:
+        waveform = waveform.T
+
+    audio_data = {
+        "waveform": waveform,
+        "sample_rate": sample_rate
+    }
+
+    pipeline = Pipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.1",
+        token=True
+    )
+
+    diarization = pipeline(audio_data)
+
+    segments = []
+
+    # NEW API
+    for segment, speaker in diarization.speaker_diarization:
+        segments.append({
+            "start": segment.start,
+            "end": segment.end,
+            "speaker": speaker
+        })
+
+    return segments
