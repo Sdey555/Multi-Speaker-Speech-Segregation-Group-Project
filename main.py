@@ -12,6 +12,7 @@ from utils.timestamps import group_by_speaker
 from separation.split_speakers import split_into_speakers
 
 from visualization import create_all_visualizations
+from GUI.fileExplorer import launch_data_explorer
 
 
 def main():
@@ -42,12 +43,12 @@ def main():
         speakers,
         OUTPUT_FOLDER
     )
-
     print("Done!")
-
     print(f"Speakers detected: {len(speakers)}")
     
-    create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_FOLDER)
+    create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_VISUALS)
+    launch_data_explorer(DATA_FOLDER)
+    
 
 
 if __name__ == "__main__":
