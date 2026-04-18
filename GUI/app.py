@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from PySide6.QtGui import QPainter, QColor, QPen
@@ -134,6 +135,7 @@ class GuiApp(QWidget):
 
         self.input_path = ""
         self.worker = None
+        self.last_processed_sig = None
 
         self._build_ui()
 
@@ -239,12 +241,42 @@ class GuiApp(QWidget):
             self._show_error("Please choose a valid input audio file before running the pipeline.")
             return
 
+        try:
+            current_sig = (
+                self.input_path,
+                os.path.getmtime(self.input_path),
+                os.path.getsize(self.input_path)
+            )
+        except Exception as e:
+            self._show_error(f"Error accessing file: {str(e)}")
+            return
+
+        if self.last_processed_sig == current_sig:
+            QMessageBox.information(self, "Already Processed", "This exact file has already been processed.")
+            if os.path.exists(os.path.join(DATA_FOLDER, "output", "segments.json")):
+                self.lower_stack.setCurrentIndex(1)
+            return
+
+        self.last_processed_sig = current_sig
+
         self.run_button.setEnabled(False)
         self.status_box.clear()
         
         self.lower_stack.setCurrentIndex(0)
         self.loading_widget.start_animation()
         self._append_status("Starting processing...")
+
+        self._append_status("Clearing previous output data...")
+        if os.path.exists(OUTPUT_FOLDER):
+            try:
+                for filename in os.listdir(OUTPUT_FOLDER):
+                    file_path = os.path.join(OUTPUT_FOLDER, filename)
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+            except Exception as e:
+                self._append_status(f"Warning: Failed to clear old outputs: {e}")
 
         self.worker = PipelineWorker(self.input_path)
         self.worker.status_updated.connect(self._append_status)
