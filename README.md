@@ -112,10 +112,10 @@ hf auth login
 
 ## How to Run
 
-1. Place your input audio file here:
+1. Choose an input audio file from the GUI or place it in:
 
 ```text
-Data/input/sample.wav
+Data/input/
 ```
 
 2. Make sure FFmpeg binaries are present in:
@@ -129,6 +129,8 @@ bin/ffmpeg/
 ```bash
 python main.py
 ```
+
+4. Use the GUI to select the input file and run the pipeline without terminal interaction.
 
 ## Output
 
