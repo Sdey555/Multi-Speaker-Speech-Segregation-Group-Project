@@ -254,7 +254,21 @@ class FileTile(QWidget):
             self.button.setStyleSheet("font-size: 40px;")
 
         # LABEL
-        self.label = QLabel(os.path.basename(file_path))
+        label_text = os.path.basename(file_path)
+        if not lower_path.endswith(self.IMAGE_EXTS):
+            try:
+                import librosa
+                dur_secs = librosa.get_duration(path=file_path)
+                m, s = divmod(int(round(dur_secs)), 60)
+                h, m = divmod(m, 60)
+                if h > 0:
+                    label_text += f"\n[{h:d}:{m:02d}:{s:02d}]"
+                else:
+                    label_text += f"\n[{m:d}:{s:02d}]"
+            except Exception:
+                pass
+
+        self.label = QLabel(label_text)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setWordWrap(True)
 

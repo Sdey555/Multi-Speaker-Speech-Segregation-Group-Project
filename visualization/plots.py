@@ -92,7 +92,7 @@ def plot_speaker_timeline(segments, save_path: str):
 
 
 def create_all_visualizations(audio_file: str, segments, output_folder: str, speaker_audio_folder: str = None):
-    vis_dir = os.path.join(output_folder, "visualizations")
+    vis_dir = os.path.join(os.path.dirname(output_folder), "visualizations")
     _ensure_dir(vis_dir)
 
     plot_waveform(audio_file, os.path.join(vis_dir, "waveform.png"))

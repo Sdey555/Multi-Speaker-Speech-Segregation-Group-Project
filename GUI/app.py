@@ -63,7 +63,7 @@ class PipelineWorker(QThread):
                 json.dump(segments, handle, indent=4)
 
             self.status_updated.emit("Generating visualizations...")
-            create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_FOLDER)
+            create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_FOLDER, OUTPUT_FOLDER)
 
             self.finished_success.emit("Processing complete. Output is available in the Data folder.")
         except Exception as exc:
@@ -267,16 +267,18 @@ class GuiApp(QWidget):
         self._append_status("Starting processing...")
 
         self._append_status("Clearing previous output data...")
-        if os.path.exists(OUTPUT_FOLDER):
-            try:
-                for filename in os.listdir(OUTPUT_FOLDER):
-                    file_path = os.path.join(OUTPUT_FOLDER, filename)
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
-            except Exception as e:
-                self._append_status(f"Warning: Failed to clear old outputs: {e}")
+        dirs_to_clear = [OUTPUT_FOLDER, os.path.join(DATA_FOLDER, "visualizations")]
+        for d in dirs_to_clear:
+            if os.path.exists(d):
+                try:
+                    for filename in os.listdir(d):
+                        file_path = os.path.join(d, filename)
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                            os.unlink(file_path)
+                        elif os.path.isdir(file_path):
+                            shutil.rmtree(file_path)
+                except Exception as e:
+                    self._append_status(f"Warning: Failed to clear {d}: {e}")
 
         self.worker = PipelineWorker(self.input_path)
         self.worker.status_updated.connect(self._append_status)
