@@ -1,6 +1,6 @@
-# Multi-Speaker-Speech-Segregation
+# DemoSpeakerSplitter
 
-Multi-Speaker-Speech-Segregation is a Python project that:
+DemoSpeakerSplitter is a Python project that:
 
 - converts an input audio file to mono WAV
 - applies noise reduction
@@ -18,7 +18,6 @@ This project is designed for local use and currently assumes a two-speaker diari
 - speaker diarization using `pyannote/speaker-diarization-3.1`
 - speaker-wise audio export
 - simple pipeline entry point through `main.py`
-- waveform, spectrogram, and speaker timeline visualization
 
 ## Project Structure
 
@@ -27,6 +26,8 @@ DemoSpeakerSplitter/
 |-- audio_processing/
 |   |-- loader.py
 |   `-- noise_cleaner.py
+|-- bin/
+|   `-- ffmpeg/             # Bundle ffmpeg.exe and ffprobe.exe here
 |-- diarization/
 |   `-- diarize.py
 |-- separation/
@@ -34,15 +35,15 @@ DemoSpeakerSplitter/
 |-- utils/
 |   |-- timestamps.py
 |   `-- visualization.py
-|-- visualization/
-|   |-- __init__.py
-|   `-- plots.py
-|-- input/
-|-- output/
+|-- Data/
+|   |-- input/
+|   `-- output/
 |-- config.py
 |-- main.py
 |-- requirements.txt
+|-- setup_env.bat           # Automated environment setup
 `-- README.md
+
 ```
 
 ## Requirements
@@ -51,7 +52,8 @@ Recommended environment:
 
 - Windows PowerShell
 - Python 3.11 or newer
-- `ffmpeg` installed and available in `PATH`
+- **FFmpeg binaries** (ffmpeg.exe and ffprobe.exe to be downloaded (https://www.gyan.dev/ffmpeg/builds/) and placed in `bin/ffmpeg/` for portability)
+
 - a Hugging Face account and access token
 
 ## Python Dependencies
@@ -78,17 +80,16 @@ pip install -r requirements.txt
 
 ## External Dependencies
 
-### FFmpeg
+### FFmpeg (Portable Setup)
 
-`pydub` depends on FFmpeg for reliable audio handling.
+This project is configured to use FFmpeg binaries located within the repository for maximum portability across machines.
 
-Install FFmpeg on Windows and make sure `ffmpeg` is available in your `PATH`.
+1.  Download the FFmpeg "essentials" or "full" build for Windows (e.g., from [gyan.dev](https://www.gyan.dev/ffmpeg/builds/)).
+2.  Extract `ffmpeg.exe` and `ffprobe.exe` from the `bin` folder of the download.
+3.  Place both files into the project's `bin/ffmpeg/` folder.
 
-To verify:
+The code in `config.py` will automatically detect and use these binaries.
 
-```powershell
-ffmpeg -version
-```
 
 ### Hugging Face Access
 
@@ -119,33 +120,29 @@ When prompted, paste your token.
 
 ```powershell
 git clone <your-repo-url>
-cd DemoSpeakerSplitter
+cd Multi-Speaker-Speech-Segregation-Group-Project
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Run the automated setup
+
+Instead of manual installation, you can simply run the included batch script:
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+.\setup_env.bat
 ```
 
-### 3. Install Python dependencies
+This will:
+- Create a virtual environment (`venv`).
+- Install all Python dependencies from `requirements.txt`.
+- Check if FFmpeg is placed correctly in `bin/ffmpeg/`.
+
+### 3. Authenticate with Hugging Face
 
 ```powershell
-pip install -r requirements.txt
-```
-
-### 4. Install and verify FFmpeg
-
-```powershell
-ffmpeg -version
-```
-
-### 5. Authenticate with Hugging Face
-
-```powershell
+.\venv\Scripts\activate
 huggingface-cli login
 ```
+
 
 ## Input and Output
 
@@ -180,7 +177,7 @@ Pipeline steps:
 4. Run speaker diarization
 5. Group timestamp segments per speaker
 6. Export one WAV file per speaker
-7. Generate waveform, spectrogram, and speaker timeline visualizations
+7. Display the waveform
 
 ## Example Output
 
@@ -192,44 +189,6 @@ output/SPEAKER_01.wav
 ```
 
 The exact speaker labels may vary depending on the diarization result.
-
-## Visualization
-
-The project includes a visualization module that generates graphical representations of the processed audio and diarization results. These visualizations help interpret how the system identifies and separates speakers over time.
-Types of Visualizations
-
-1. Waveform
-  - Displays amplitude of the audio signal over time
-  - Helps identify speech regions and silence
-  - Useful for understanding overall audio structure
-2. Spectrogram
-  - Shows frequency distribution over time
-  - Highlights speech patterns and energy levels
-  - Useful for analyzing acoustic characteristics
-3. Speaker Timeline
-  - Visual representation of speaker activity
-  - Each speaker is shown with a different color
-  - Clearly indicates who spoke when
-# Implementation
-  - The visualization logic is implemented in the visualization/ module.
-# Main Function:
-  ```
-   create_all_visualizations(audio_file, segments, output_folder)
-  ```
-This function generates all visual outputs in a single step.
-# Output Location
-  All visualizations are saved in:
-  ```text
-    output/visualizations/
-  ├── waveform.png
-  ├── spectrogram.png
-  └── speaker_timeline.png
-  ```
-# Purpose
- - Visualization improves interpretability of the diarization process by:
-  - making speaker transitions easy to understand
-  - validating segmentation quality
-  - providing visual insight into audio processing
 
 ## Notes and Limitations
 

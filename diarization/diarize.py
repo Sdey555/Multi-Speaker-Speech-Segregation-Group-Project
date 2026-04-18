@@ -140,15 +140,10 @@ def perform_diarization(audio_file, expected_speakers=EXPECTED_SPEAKERS):
         "sample_rate": sample_rate
     }
 
-    pipeline = Pipeline.from_pretrained(
-        "pyannote/speaker-diarization-3.1",
-        token=True
-    )
+    pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1",token=True)
 
-    diarization = pipeline(audio_data)          
+    diarization = pipeline(audio_data)          #<------Removed No of Speaker Limiter
     segments = _extract_segments(diarization)
-    for seg in segments:
-        print(seg)
 
     segments = _normalize_segments(segments)
     segments = _merge_same_speaker_segments(segments)

@@ -10,3 +10,4 @@ noisereduce==3.0.3
 numpy==2.4.4
 matplotlib==3.10.8
 soundfile==0.13.1
+PySide6==6.8.3
