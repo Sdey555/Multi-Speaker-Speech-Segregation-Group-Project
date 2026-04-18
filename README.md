@@ -1,225 +1,208 @@
-# Multi-Speaker Speech Segregation
+# Multi‑Speaker Speech Segregation
 
-A Python-based system for **multi-speaker speech segregation** that takes a mixed audio recording and separates it into speaker-wise outputs. The project combines audio preprocessing, pretrained speaker diarization, custom post-processing, and visualization to make the results easier to interpret.
+A **Python‑based** pipeline that takes a mixed‑audio recording and separates it into **speaker‑wise** output files. The system combines audio preprocessing, pretrained speaker diarization, custom post‑processing, and rich visualizations, all wrapped in an interactive GUI data explorer.
 
-## Features
+---
 
-* Converts input audio to mono WAV format
-* Applies noise reduction before diarization
-* Uses pretrained speaker diarization models
-* Refines raw diarization output with custom post-processing
-* Exports speaker-wise audio files
-* Saves diarization output as JSON
-* Generates waveform, spectrogram, and speaker timeline visualizations
-* Includes a GUI-based data explorer and interactive speaker timeline
-* Portable FFmpeg setup bundled with the repository
+## ✨ Features
 
-## How It Works
+- **Mono conversion** and **noise reduction** before diarization.
+- State‑of‑the‑art diarization using **pyannote.audio** pretrained models.
+- Robust post‑processing: segment normalization, merging, bridging short gaps, and filtering tiny noisy segments.
+- Automatic **speaker‑wise audio extraction** and JSON export of segment metadata.
+- High‑quality visualizations:
+  - Waveform & spectrogram of the whole recording.
+  - Speaker‑timeline view with interactive playback.
+  - Per‑speaker waveform & spectrogram images.
+- **GUI data explorer** (PySide6) for browsing, previewing, and playing generated files.
+- Portable **FFmpeg** binaries bundled in the repository for seamless audio handling on Windows.
 
-```text
-Input Audio
-→ Mono Conversion
-→ Noise Reduction
-→ Speaker Diarization
-→ Post-processing
-→ Speaker Grouping
-→ Audio Splitting
-→ Visualization
-→ GUI Data Explorer
-→ Output
-```
+---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 Multi-Speaker-Speech-Segregation-Group-Project/
-|-- audio_processing/
-|   |-- loader.py
-|   `-- noise_cleaner.py
-|-- bin/
-|   `-- ffmpeg/
-|       |-- ffmpeg.exe
-|       `-- ffprobe.exe
-|-- diarization/
-|   `-- diarize.py
-|-- GUI/
-|   |-- fileExplorer.py
-|   `-- timeline_ui.py
-|-- separation/
-|   `-- split_speakers.py
-|-- utils/
-|   `-- timestamps.py
-|-- visualization/
-|   |-- __init__.py
-|   `-- plots.py
-|-- Data/
-|   |-- input/
-|   |-- output/
-|   `-- visualizations/
-|-- config.py
-|-- main.py
-|-- requirements.txt
-|-- setup_env.bat
-`-- README.md
+├─ audio_processing/          # Loader & noise‑reduction utilities
+│   ├─ loader.py
+│   └─ noise_cleaner.py
+├─ bin/ffmpeg/                # FFmpeg executables (ffmpeg.exe, ffprobe.exe)
+├─ diarization/               # Core diarization script
+│   └─ diarize.py
+├─ GUI/                       # Interactive data explorer & timeline UI
+│   ├─ app.py
+│   ├─ fileExplorer.py
+│   └─ timeline_ui.py
+├─ separation/                # Speaker‑wise audio splitting
+│   └─ split_speakers.py
+├─ utils/                     # Helper utilities (timestamps, etc.)
+│   └─ timestamps.py
+├─ visualization/             # Plotting utilities
+│   ├─ __init__.py
+│   └─ plots.py
+├─ Data/                      # Sample input / generated output
+│   ├─ input/
+│   ├─ output/
+│   └─ visualizations/
+├─ config.py                  # Global configuration (paths, constants)
+├─ main.py                    # Entry‑point that launches the GUI
+├─ requirements.txt           # Exact Python dependencies (pinned versions)
+├─ setup_env.bat              # Convenience script to create venv & install deps
+├─ start.bat                  # Shortcut to activate venv and run the app
+└─ README.md                  # **You are reading it!**
 ```
 
-## Requirements
+---
 
-### System Requirements
+## 📦 Requirements
 
-* Windows PowerShell
-* Python 3.11 or newer
-* FFmpeg binaries placed in `bin/ffmpeg/`
-* A Hugging Face account and access token
-* Enough disk space for model downloads and generated output
+### System
+- Windows 10/11 (PowerShell) – the project is tested on Windows.
+- **Python 3.11+** (the `setup_env.bat` script creates a virtual environment).
+- FFmpeg binaries placed in `bin/ffmpeg/` (included in the repo).
+- A Hugging Face account with access to the required `pyannote` model repositories.
 
-### Python Dependencies
+### Python Packages
+The exact versions are pinned in `requirements.txt`:
 
-Install the required packages with:
+```text
+pyannote.audio==4.0.4
+torch==2.11.0
+torchaudio==2.11.0
+librosa==0.11.0
+pydub==0.25.1
+noisereduce==3.0.3
+numpy==2.4.4
+matplotlib==3.10.8
+soundfile==0.13.1
+PySide6==6.10.1
+```
+
+Install them with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Main libraries used:
+---
 
-* `pyannote.audio`
-* `torch`
-* `torchaudio`
-* `librosa`
-* `pydub`
-* `noisereduce`
-* `numpy`
-* `matplotlib`
-* `soundfile`
-* `PySide6`
+## 🔑 Hugging Face Setup
 
-## Hugging Face Setup
-
-This project uses pretrained diarization models from Hugging Face.
-
-Before running the project:
-
-1. Create a Hugging Face account at [https://huggingface.co/](https://huggingface.co/)
-2. Accept the access conditions for the required `pyannote` model repositories
-3. Log in locally so the model files can be downloaded
-
-Login command:
+1. Create a Hugging Face account at <https://huggingface.co/>.
+2. Accept the access conditions for the `pyannote` model repositories you intend to use.
+3. Log in locally so the model files can be downloaded:
 
 ```bash
 hf auth login
 ```
 
-## How to Run
+---
 
-1. Choose an input audio file from the GUI or place it in:
+## 🚀 How to Run
 
-```text
-Data/input/
-```
-
-2. Make sure FFmpeg binaries are present in:
-
-```text
-bin/ffmpeg/
-```
-
-3. Run the project:
+1. **Place your input audio** (any format supported by FFmpeg) in `Data/input/`.
+2. Verify that the FFmpeg binaries exist in `bin/ffmpeg/`.
+3. Activate the virtual environment and launch the GUI:
 
 ```bash
+# Using the provided batch shortcut
+start.bat
+
+# Or double‑click the Windows script to launch the batch file
+run_voice_segregator.vbs
+```
+
+   *or* manually:
+
+```bash
+call venv\Scripts\activate
 python main.py
 ```
 
-4. Use the GUI to select the input file and run the pipeline without terminal interaction.
+4. In the GUI, select the input file and click **Run**. The pipeline will process the audio, generate speaker‑wise files, JSON metadata, and visualizations.
 
-## Output
+---
 
-After execution, the project generates:
+## 📂 Output
+
+After a successful run you will find:
 
 ```text
 Data/output/
-├── speaker-wise WAV files
-├── segments.json
+├─ speaker_01.wav
+├─ speaker_02.wav
+├─ ...
+└─ segments.json          # diarization metadata (start, end, speaker ID)
 ```
 
-And visualizations in:
+Visualizations are saved under `Data/visualizations/`:
 
 ```text
 Data/visualizations/
-├── waveform.png
-├── spectrogram.png
-├── speaker_timeline.png
-├── speaker-wise waveform images
-└── speaker-wise spectrogram images
+├─ waveform.png
+├─ spectrogram.png
+├─ speaker_timeline.png
+├─ speaker_01_waveform.png
+├─ speaker_01_spectrogram.png
+└─ ...
 ```
 
-The GUI data explorer also opens to help browse and preview the generated files.
+The GUI data explorer also opens automatically, allowing you to preview and play any generated file.
 
-## Visualization
+---
 
-The visualization module creates graphical representations of the processed audio and diarization results.
+## 🛠️ Post‑Processing Details
 
-### Generated Visuals
+The raw diarization output is refined using the following steps:
 
-* **Waveform** — amplitude vs. time
-* **Spectrogram** — frequency content vs. time
-* **Speaker Timeline** — speaker activity over time
+- **Segment Normalization** – ensures consistent start/end timestamps.
+- **Merging** – adjacent segments belonging to the same speaker are merged.
+- **Bridging** – short pauses (< 200 ms) between the same speaker are bridged.
+- **Filtering** – removes tiny segments (< 300 ms) that are likely noise.
 
-If speaker-wise audio is available, the system also generates:
+These heuristics improve readability and stability of the final speaker segmentation.
 
-* speaker waveform plots
-* speaker spectrogram plots
+---
 
-These visuals help interpret the diarization output and inspect speaker separation quality.
+## 🎨 GUI Features
 
-## Post-processing
+- **File Explorer** – browse `Data/` folders, preview images, and play audio.
+- **Interactive Speaker Timeline** – click on any segment to hear the corresponding speaker audio.
+- **Real‑time Progress** – visual feedback while the pipeline runs.
 
-The raw diarization output is refined using:
+---
 
-* Segment normalization
-* Merging adjacent segments of the same speaker
-* Bridging short interruptions
-* Removing tiny segments that are likely noise
+## ⚠️ Limitations
 
-This improves the readability and stability of the final segmentation.
+- Accuracy depends on the quality of the input recording.
+- Very similar‑sounding speakers may be merged incorrectly.
+- Overlapping speech remains challenging for the current diarization model.
+- Extremely short segments may be removed during post‑processing.
 
-## GUI Features
+---
 
-The project includes a GUI-based data explorer that can:
+## 🔮 Future Improvements
 
-* browse generated files
-* preview images
-* play speaker audio files
-* open an interactive speaker timeline
+- Enhanced handling of overlapping speech.
+- More sophisticated speaker counting and clustering algorithms.
+- Real‑time processing mode.
+- Refined UI/UX for the data explorer (dark mode, theming).
+- Detailed analytics dashboard for speaker statistics.
 
-This makes the project easier to demo and inspect.
+---
 
-## Limitations
+## 📚 References
 
-* Performance depends on audio quality
-* Similar-sounding speakers may be merged incorrectly
-* Overlapping speech is still challenging
-* Very short segments may be affected by post-processing
-* Diarization accuracy can vary across different recordings
+- **pyannote.audio** – <https://github.com/pyannote/pyannote-audio>
+- **Hugging Face** – <https://huggingface.co/>
+- **Librosa** – <https://librosa.org/>
+- **PyTorch** – <https://pytorch.org/>
+- **pydub** – <https://github.com/jiaaro/pydub>
+- **noisereduce** – <https://github.com/timsainb/noisereduce>
+- **PySide6** – <https://doc.qt.io/qtforpython/>
 
-## Future Improvements
+---
 
-* Better overlap handling
-* Improved speaker counting and clustering
-* Real-time processing
-* Cleaner UI/UX for the data explorer
-* More detailed analytics for speaker segmentation
+## 📖 Summary
 
-## References
-
-* Pyannote Audio: [https://github.com/pyannote/pyannote-audio](https://github.com/pyannote/pyannote-audio)
-* Hugging Face: [https://huggingface.co/](https://huggingface.co/)
-* Librosa: [https://librosa.org/](https://librosa.org/)
-* PyTorch: [https://pytorch.org/](https://pytorch.org/)
-* Pydub: [https://github.com/jiaaro/pydub](https://github.com/jiaaro/pydub)
-* noisereduce: [https://github.com/timsainb/noisereduce](https://github.com/timsainb/noisereduce)
-* PySide6: [https://doc.qt.io/qtforpython/](https://doc.qt.io/qtforpython/)
-
-## Summary
-
-This project demonstrates how machine learning and signal processing can be combined to build a complete pipeline for multi-speaker speech segregation, making complex audio data structured, interpretable, and easier to analyze.
+This project demonstrates how modern machine‑learning models and classic signal‑processing techniques can be combined to build a complete, end‑to‑end pipeline for **multi‑speaker speech segregation**. It provides a user‑friendly GUI, high‑quality visualizations, and a reproducible workflow that can be extended for research or production use.
