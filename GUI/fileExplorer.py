@@ -285,10 +285,32 @@ class MainWindow(QWidget):
     def __init__(self, data_path):
         super().__init__()
 
-        self.setWindowTitle("DATA Explorer 😏")
+        self.setWindowTitle("DATA Explorer")
         self.resize(900, 700)
 
         main_layout = QVBoxLayout()
+
+        segments_path = os.path.join(data_path, "output", "segments.json")
+        audio_path = os.path.join(data_path, "input", "clean_audio.wav")
+        if os.path.exists(segments_path) and os.path.exists(audio_path):
+            self.timeline_btn = QPushButton("🎙 Open Interactive Speaker Timeline 🎙")
+            self.timeline_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #5cb85c;
+                    color: white;
+                    font-size: 18px;
+                    font-weight: bold;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 10px 20px;
+                    margin-bottom: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #4cae4c;
+                }
+            """)
+            self.timeline_btn.clicked.connect(lambda: self.open_timeline(audio_path, segments_path))
+            main_layout.addWidget(self.timeline_btn)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -339,9 +361,14 @@ class MainWindow(QWidget):
         main_layout.addWidget(scroll)
         self.setLayout(main_layout)
 
+    def open_timeline(self, audio_path, segments_path):
+        from GUI.timeline_ui import InteractiveTimelineWindow
+        self.timeline_window = InteractiveTimelineWindow(audio_path, segments_path)
+        self.timeline_window.show()
+
 
 # =========================
-# LAUNCH FUNCTION ⭐
+# LAUNCH FUNCTION 
 # =========================
 def launch_data_explorer(data_path):
     app = QApplication.instance()

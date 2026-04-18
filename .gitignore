@@ -7,3 +7,4 @@ Data/input/*.wav
 Data/visualizations/*.png
 bin/ffmpeg/*.exe
 output.log
+venv/

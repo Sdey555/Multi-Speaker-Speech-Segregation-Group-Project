@@ -19,4 +19,4 @@ INPUT_FILE = os.path.join(DATA_FOLDER, "input", "sample.wav")
 CLEAN_AUDIO_FILE = os.path.join(DATA_FOLDER, "input", "clean_audio.wav")
 OUTPUT_FOLDER = os.path.join(DATA_FOLDER, "output")
 OUTPUT_VISUALS = DATA_FOLDER
-SAMPLE_RATE = 64000
+SAMPLE_RATE = 64000

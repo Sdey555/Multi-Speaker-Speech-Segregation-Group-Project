@@ -1,4 +1,5 @@
 import os
+import json
 
 from config import *
 
@@ -46,7 +47,11 @@ def main():
     print("Done!")
     print(f"Speakers detected: {len(speakers)}")
     
-    create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_VISUALS)
+    segments_file = os.path.join(OUTPUT_FOLDER, "segments.json")
+    with open(segments_file, "w") as f:
+        json.dump(segments, f, indent=4)
+    
+    create_all_visualizations(CLEAN_AUDIO_FILE, segments, OUTPUT_VISUALS, OUTPUT_FOLDER)
     launch_data_explorer(DATA_FOLDER)
     
 
