@@ -1,4 +1,4 @@
-# 🎤 Multi-Speaker Speech Segregation
+# Multi-Speaker Speech Segregation
 
 A Python-based system for **multi-speaker speech segregation** that takes a mixed audio recording and separates it into speaker-wise outputs. The project combines audio preprocessing, pretrained speaker diarization, custom post-processing, and visualization to make the results easier to interpret.
 
