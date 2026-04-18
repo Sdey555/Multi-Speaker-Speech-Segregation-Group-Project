@@ -212,6 +212,11 @@ class AudioPlayer(QDialog):
     def handle_error(self, error, error_string):
         print("Audio Error:", error_string)
 
+    def closeEvent(self, event):
+        # Stop audio playback when dialog is closed
+        self.player.stop()
+        super().closeEvent(event)
+
 
 # =========================
 # FILE TILE

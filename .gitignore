@@ -2,7 +2,7 @@ venv/
 __pycache__/
 *.pyc
 .env
-Data/output/*.wav
+Data/output/
 Data/input/*.wav
 Data/visualizations/*.png
 bin/ffmpeg/*.exe

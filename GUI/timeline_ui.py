@@ -189,3 +189,8 @@ class InteractiveTimelineWindow(QDialog):
             self.view.horizontalScrollBar().setValue(int(cursor_x - 50))
         elif cursor_x < self.view.horizontalScrollBar().value():
             self.view.horizontalScrollBar().setValue(int(cursor_x))
+            
+    def closeEvent(self, event):
+        # Stop audio playback when dialog is closed
+        self.player.stop()
+        super().closeEvent(event)
