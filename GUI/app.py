@@ -1,6 +1,15 @@
 import json
 import os
 import shutil
+import warnings
+import sys
+
+# Prevent torchaudio warnings from being treated as exceptions that crash the pipeline
+warnings.filterwarnings("ignore")
+
+# PyTorch 2.5 torchcodec raises RuntimeError instead of ImportError on missing FFmpeg DLLs, crashing HF Transformers. 
+# We explicitly mock it to None so transformers gracefully falls back to soundfile without crashing!
+sys.modules["torchcodec"] = None
 
 from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from PySide6.QtGui import QPainter, QColor, QPen
@@ -17,6 +26,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QGroupBox,
     QHBoxLayout,
+    QComboBox,
 )
 
 from audio_processing.loader import load_audio
@@ -27,6 +37,7 @@ from separation.split_speakers import split_into_speakers
 from visualization import create_all_visualizations
 from GUI.fileExplorer import MainWindow
 from config import DATA_FOLDER, CLEAN_AUDIO_FILE, OUTPUT_FOLDER
+from diarization.sound_classifier import perform_sound_classification
 
 
 class PipelineWorker(QThread):
@@ -34,9 +45,10 @@ class PipelineWorker(QThread):
     finished_success = Signal(str)
     finished_error = Signal(str)
 
-    def __init__(self, input_path: str):
+    def __init__(self, input_path: str, segregation_mode: int):
         super().__init__()
         self.input_path = input_path
+        self.segregation_mode = segregation_mode
 
     def run(self):
         try:
@@ -48,8 +60,15 @@ class PipelineWorker(QThread):
             self.status_updated.emit("Cleaning noise...")
             clean_noise(CLEAN_AUDIO_FILE, CLEAN_AUDIO_FILE)
 
-            self.status_updated.emit("Running speaker diarization...")
-            segments = perform_diarization(CLEAN_AUDIO_FILE)
+            if self.segregation_mode == 0:
+                self.status_updated.emit("Running speaker diarization...")
+                segments = perform_diarization(CLEAN_AUDIO_FILE)
+            elif self.segregation_mode == 1:
+                self.status_updated.emit("Running vocal segregation (Speech vs Singing)...")
+                segments = perform_sound_classification(CLEAN_AUDIO_FILE, mode_type="vocals")
+            elif self.segregation_mode == 2:
+                self.status_updated.emit("Running instrument segregation...")
+                segments = perform_sound_classification(CLEAN_AUDIO_FILE, mode_type="instruments")
 
             self.status_updated.emit("Grouping speakers...")
             speakers = group_by_speaker(segments)
@@ -67,6 +86,9 @@ class PipelineWorker(QThread):
 
             self.finished_success.emit("Processing complete. Output is available in the Data folder.")
         except Exception as exc:
+            import traceback
+            with open("crash_log.txt", "w") as f:
+                f.write(traceback.format_exc())
             self.finished_error.emit(str(exc))
 
 
@@ -171,6 +193,21 @@ class GuiApp(QWidget):
     def _build_pipeline_ui(self, parent_widget):
         layout = QVBoxLayout(parent_widget)
         
+        mode_layout = QHBoxLayout()
+        mode_label = QLabel("Segregation Mode:")
+        mode_label.setStyleSheet("font-size: 14px;")
+        self.mode_dropdown = QComboBox()
+        self.mode_dropdown.setStyleSheet("padding: 5px; font-size: 14px;")
+        self.mode_dropdown.addItems([
+            "1. Multi-Speaker Segregation (Pyannote)",
+            "2. Speaking vs Singing (CED-Tiny)",
+            "3. Instrument Sounds (CED-Tiny)"
+        ])
+        self.mode_dropdown.currentIndexChanged.connect(self._on_mode_changed)
+        mode_layout.addWidget(mode_label)
+        mode_layout.addWidget(self.mode_dropdown, stretch=1)
+        layout.addLayout(mode_layout)
+        
         row1 = QHBoxLayout()
         self.input_line = QLineEdit()
         self.input_line.setPlaceholderText("Choose an input audio file (.wav, .mp3, .flac, .m4a, .ogg)")
@@ -215,6 +252,39 @@ class GuiApp(QWidget):
         self.status_box.setMaximumHeight(80)
         self.status_box.setStyleSheet("background-color: #f8f9fa; color: #212529; border: 1px solid #ced4da; border-radius: 4px;")
         layout.addWidget(self.status_box)
+
+    def _on_mode_changed(self):
+        # Clear all input UI states
+        self.input_path = ""
+        self.input_line.clear()
+        self.run_button.setEnabled(False)
+        self.last_processed_sig = None
+        self.status_box.clear()
+
+        # Completely wipe input, output, and visualization folders
+        dirs_to_clear = [
+            os.path.join(DATA_FOLDER, "input"),
+            OUTPUT_FOLDER, 
+            os.path.join(DATA_FOLDER, "visualizations")
+        ]
+        
+        for d in dirs_to_clear:
+            if os.path.exists(d):
+                try:
+                    for filename in os.listdir(d):
+                        file_path = os.path.join(d, filename)
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                            os.unlink(file_path)
+                        elif os.path.isdir(file_path):
+                            shutil.rmtree(file_path)
+                except Exception as e:
+                    print(f"Warning: Failed to gently clear '{d}': {e}")
+        
+        self.lower_stack.setCurrentIndex(0)
+        self.loading_widget.label.setText("Mode Switched. Ready to process.")
+        self.loading_widget.label.setStyleSheet("font-size: 18px; color: gray; margin-top: 50px;")
+        self._refresh_explorer()
+        self._append_status("Mode changed. Cleared input, output & visualizations folders.")
 
     def _refresh_explorer(self):
         while self.explorer_layout.count():
@@ -280,7 +350,7 @@ class GuiApp(QWidget):
                 except Exception as e:
                     self._append_status(f"Warning: Failed to clear {d}: {e}")
 
-        self.worker = PipelineWorker(self.input_path)
+        self.worker = PipelineWorker(self.input_path, self.mode_dropdown.currentIndex())
         self.worker.status_updated.connect(self._append_status)
         self.worker.finished_success.connect(self._on_success)
         self.worker.finished_error.connect(self._on_error)

@@ -6,15 +6,18 @@ A **Python‑based** pipeline that takes a mixed‑audio recording and separates
 
 ## ✨ Features
 
-- **Mono conversion** and **noise reduction** before diarization.
-- State‑of‑the‑art diarization using **pyannote.audio** pretrained models.
+- **Multi‑Mode Segregation**:
+  - **Speaker Diarization**: Separate multiple voices using `pyannote.audio`.
+  - **Speaking vs. Singing**: Distinguish between speech and singing using `ced-tiny`.
+  - **Instrument Sounds**: Identify and segregate specific instrument sounds (Violin, Sitar, etc.).
+- **Mono conversion** and **noise reduction** before processing.
 - Robust post‑processing: segment normalization, merging, bridging short gaps, and filtering tiny noisy segments.
-- Automatic **speaker‑wise audio extraction** and JSON export of segment metadata.
+- Automatic **segmented audio extraction** and JSON export of metadata.
 - High‑quality visualizations:
   - Waveform & spectrogram of the whole recording.
-  - Speaker‑timeline view with interactive playback.
-  - Per‑speaker waveform & spectrogram images.
-- **GUI data explorer** (PySide6) for browsing, previewing, and playing generated files.
+  - Interactive segment timeline with playback.
+  - Per‑segment waveform & spectrogram images.
+- **GUI data explorer** (PySide6) with one-click mode switching and automatic folder cleanup.
 - Portable **FFmpeg** binaries bundled in the repository for seamless audio handling on Windows.
 
 ---
@@ -27,8 +30,9 @@ Multi-Speaker-Speech-Segregation-Group-Project/
 │   ├─ loader.py
 │   └─ noise_cleaner.py
 ├─ bin/ffmpeg/                # FFmpeg executables (ffmpeg.exe, ffprobe.exe)
-├─ diarization/               # Core diarization script
-│   └─ diarize.py
+├─ diarization/               # Core segregation scripts
+│   ├─ diarize.py             # Speaker diarization logic
+│   └─ sound_classifier.py    # CED-Tiny multi-mode classification
 ├─ GUI/                       # Interactive data explorer & timeline UI
 │   ├─ app.py
 │   ├─ fileExplorer.py
@@ -69,6 +73,8 @@ The exact versions are pinned in `requirements.txt`:
 pyannote.audio==4.0.4
 torch==2.11.0
 torchaudio==2.11.0
+transformers>=4.40.0
+tokenizers>=0.20.0
 librosa==0.11.0
 pydub==0.25.1
 noisereduce==3.0.3
@@ -76,6 +82,8 @@ numpy==2.4.4
 matplotlib==3.10.8
 soundfile==0.13.1
 PySide6==6.10.1
+huggingface-hub>=0.20.0
+regex
 ```
 
 Install them with:

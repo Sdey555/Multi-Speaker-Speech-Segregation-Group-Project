@@ -1,13 +1,17 @@
-# Direct dependencies for DemoSpeakerSplitter
+# Direct dependencies for Multi-Mode Audio Segregation
 # Note: install FFmpeg separately on Windows for pydub/audio tooling.
 
 pyannote.audio==4.0.4
 torch==2.11.0
 torchaudio==2.11.0
+transformers>=4.40.0
+tokenizers>=0.22.0
+regex
 librosa==0.11.0
 pydub==0.25.1
 noisereduce==3.0.3
 numpy==2.4.4
 matplotlib==3.10.8
 soundfile==0.13.1
-PySide6==6.10.1
+PySide6==6.12.0
+huggingface-hub>=0.20.0
