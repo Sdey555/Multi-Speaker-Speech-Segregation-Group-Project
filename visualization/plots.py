@@ -91,12 +91,20 @@ def plot_speaker_timeline(segments, save_path: str):
     plt.close()
 
 
-def create_all_visualizations(audio_file: str, segments, output_folder: str):
-    vis_dir = os.path.join(output_folder, "visualizations")
+def create_all_visualizations(audio_file: str, segments, output_folder: str, speaker_audio_folder: str = None):
+    vis_dir = os.path.join(os.path.dirname(output_folder), "visualizations")
     _ensure_dir(vis_dir)
 
     plot_waveform(audio_file, os.path.join(vis_dir, "waveform.png"))
     plot_spectrogram(audio_file, os.path.join(vis_dir, "spectrogram.png"))
     plot_speaker_timeline(segments, os.path.join(vis_dir, "speaker_timeline.png"))
+
+    if speaker_audio_folder:
+        for file in os.listdir(speaker_audio_folder):
+            if file.endswith(".wav"):
+                spk = os.path.splitext(file)[0]
+                spk_audio = os.path.join(speaker_audio_folder, file)
+                plot_waveform(spk_audio, os.path.join(vis_dir, f"{spk}_waveform.png"))
+                plot_spectrogram(spk_audio, os.path.join(vis_dir, f"{spk}_spectrogram.png"))
 
     print(f"Visualizations saved in: {vis_dir}")
