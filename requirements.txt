@@ -13,5 +13,5 @@ noisereduce==3.0.3
 numpy==2.4.4
 matplotlib==3.10.8
 soundfile==0.13.1
-PySide6==6.12.0
+PySide6==6.11.0
 huggingface-hub>=0.20.0
